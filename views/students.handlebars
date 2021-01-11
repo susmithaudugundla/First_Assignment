@@ -1,0 +1,22 @@
+<h1>Students List</h1>
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Id</th>
+      <th scope="col">Name</th>
+      <th scope="col">Branch</th>
+      <th scope="col">Email</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each rows}}
+      <tr>
+        <td>{{this.id}}</td>
+        <td>{{this.name}}</td>
+        <td>{{this.branch}}</td>
+        <td>{{this.email}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+
