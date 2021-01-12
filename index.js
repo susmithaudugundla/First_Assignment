@@ -20,6 +20,6 @@ app.get('/signup', (req, res) => {
 
 app.use('/api/students', require('./routes/apis/students'))
 app.use('/isstudent', require('./routes/isstudent'))
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-app.listen(5000);
+app.listen(PORT);
