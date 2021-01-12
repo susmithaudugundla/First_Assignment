@@ -4,10 +4,10 @@ const router = express.Router();
 const MongoClient = require('mongodb').MongoClient;
 const schema = require('mongodb-schema');
 let database;
-const uri = process.env.MONGODB_URI;
+//const uri = process.env.MONGODB_URI;
 
 
-//const uri = "mongodb+srv://FirstAssignment:Susmi@123@assignment-1.ksf6u.mongodb.net/Students?retryWrites=true&w=majority";
+const uri = process.env.MONGODB_URI || "mongodb+srv://FirstAssignment:Susmi@123@assignment-1.ksf6u.mongodb.net/Students?retryWrites=true&w=majority";
 MongoClient.connect(uri,{ useUnifiedTopology: true, useNewUrlParser: true }, (err, conn) => {
         if (err) {
             console.log("Connection failed to database", err);
