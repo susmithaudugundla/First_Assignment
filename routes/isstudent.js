@@ -1,12 +1,10 @@
 const express = require('express');
 const router = express.Router();
-
 const MongoClient = require('mongodb').MongoClient;
 const schema = require('mongodb-schema');
-let database;
-//const uri = process.env.MONGODB_URI;
-
 const uri = process.env.MONGODB_URI || "mongodb+srv://FirstAssignment:Susmi@123@assignment-1.ksf6u.mongodb.net/Students?retryWrites=true&w=majority";
+let database;
+
 MongoClient.connect(uri,{ useUnifiedTopology: true, useNewUrlParser: true }, (err, conn) => {
         if (err) {
             console.log("Connection failed to database", err);
@@ -19,7 +17,7 @@ MongoClient.connect(uri,{ useUnifiedTopology: true, useNewUrlParser: true }, (er
 
 router.post('/', async (req, res) => {
     if(!req.body.id || !req.body.password){
-        res.status(400).json({msg:"You have to enter all the details"})
+        res.json({msg:"You have to enter all the details"})
     }
     else{
         try{
