@@ -3,7 +3,7 @@ const router = express.Router();
 const MongoClient = require('mongodb').MongoClient;
 const schema = require('mongodb-schema');
 const { check, validationResult } = require('express-validator');
-const { validateId, validateEmail, isEmailInUse, validatePassword } = require('../../validator')
+const { validateId, validateEmail, isEmailInUse, validatePassword, isIDInUse } = require('../../validator')
 const uri = process.env.MONGODB_URI || "mongodb+srv://FirstAssignment:Susmi@123@assignment-1.ksf6u.mongodb.net/Students?retryWrites=true&w=majority";
 let database;
 
@@ -22,7 +22,7 @@ MongoClient.connect(uri,{ useUnifiedTopology: true, useNewUrlParser: true }, (er
 router.get('/', async (req, res) => {
             try{
                 let allStudents = await database.collection("students_data").find({}).toArray();
-                let del = await database.collection("students_data").deleteMany({ name:"Bhava" })
+                //let del = await database.collection("students_data").deleteMany({ name:"Bhavani" })
                 res.render('students', {allStudents});
             }
             catch (err){
@@ -34,7 +34,7 @@ router.get('/', async (req, res) => {
 // Create a student record
 
 router.post('/', 
-    [validateId, validateEmail, isEmailInUse, validatePassword],
+    [validateId, isIDInUse, validateEmail, isEmailInUse, validatePassword],
     async (req, res) => {
         if(!req.body.id || !req.body.name || !req.body.branch || !req.body.email || !req.body.password){
             return res.status(400).json({msg:"You have to enter all the details"})

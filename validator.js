@@ -15,6 +15,12 @@ MongoClient.connect(uri,{ useUnifiedTopology: true, useNewUrlParser: true }, (er
 
 module.exports = {
     validateId:   check('id').matches(/^R(\d{6})$/).withMessage('Entered ID is in wrong format. Ex:R151001'),
+    isIDInUse:    check('id').custom(async value => {
+                    const val = await database.collection("students_data").find({id:value}).count();
+                    if(val>0){
+                        throw new Error('ID already in use') ;
+                    }
+                }),
     validateEmail: check('email').isEmail().withMessage('Incorrect email id'),
     isEmailInUse: check('email').custom(async value => {
                         const val = await database.collection("students_data").find({email:value}).count();
