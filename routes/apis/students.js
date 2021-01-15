@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const MongoClient = require('mongodb').MongoClient;
 const schema = require('mongodb-schema');
+const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
 const { validateId, validateEmail, isEmailInUse, validatePassword, isIDInUse } = require('../../validator')
 const uri = process.env.MONGODB_URI || "mongodb+srv://FirstAssignment:Susmi@123@assignment-1.ksf6u.mongodb.net/Students?retryWrites=true&w=majority";
+const secretAccessToken = "secret";
 let database;
 
 
@@ -18,12 +20,57 @@ MongoClient.connect(uri,{ useUnifiedTopology: true, useNewUrlParser: true }, (er
         }
   )
 
+const authenticateJWT = (req, res, next) =>{
+    const authHeader = req.headers["authorization"] || req.cookies["token"];
+    if(authHeader){
+        const token = authHeader.split(' ')[1];
+        req.token = token;
+        jwt.verify(token, secretAccessToken, async (err, authData) => {
+            if(err){
+                res.sendStatus(403);
+            }
+            else{
+                req.authData = authData;
+                next();
+            }
+        });
+    }
+    else {
+        res.sendStatus(401);
+    }
+}
+
+// Login
+router.post('/login', async (req, res) => {
+    const {id, password} = req.body;
+    if(!id || !password){
+        res.json({msg:"You have to enter all the details"})
+    }
+    else{
+        try{
+            const user = await database.collection("students_data").find({$and:[{id:id}, {password:password}]}).toArray();
+            if(user.length !== 0){
+                jwt.sign({username: user.name }, secretAccessToken,(err, token) => {
+                    res.cookie('token', "Bearer "+token, { httpOnly: true });
+                    res.json({token});
+                });
+            }
+            else{
+                res.send("<h3>Entered incorrect details</h3>");
+            }
+        }
+        catch(err){
+            console.log(err);
+        }
+    }
+})
+
 // Get all students
-router.get('/', async (req, res) => {
+router.get('/', authenticateJWT, async (req, res) => {
             try{
                 let allStudents = await database.collection("students_data").find({}).toArray();
-                //let del = await database.collection("students_data").deleteMany({ name:"Bhavani" })
                 res.render('students', {allStudents});
+                
             }
             catch (err){
                 console.error(err);
@@ -32,11 +79,11 @@ router.get('/', async (req, res) => {
 )
 
 // Create a student record
-
 router.post('/', 
     [validateId, isIDInUse, validateEmail, isEmailInUse, validatePassword],
     async (req, res) => {
-        if(!req.body.id || !req.body.name || !req.body.branch || !req.body.email || !req.body.password){
+        const {id, name, branch, email, password} = req.body;
+        if(!id || !name || !branch || !email || !password){
             return res.status(400).json({msg:"You have to enter all the details"})
         }
         else{
@@ -46,13 +93,13 @@ router.post('/',
             }
             try{
                 let addStudent = await database.collection("students_data").insertOne({
-                    id:req.body.id,
-                    name: req.body.name,
-                    email:req.body.email,
-                    branch:req.body.branch,
-                    password:req.body.password
+                    id:id,
+                    name: name,
+                    email:email,
+                    branch:branch,
+                    password:password
                 });
-                res.redirect('/');
+                res.send("<h1>Recorded successfully</h1>");
             }
             catch(err){
                 console.error(err);
