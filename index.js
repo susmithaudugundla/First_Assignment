@@ -23,6 +23,8 @@ app.get('/signup', (req, res) => {
 })
 
 app.use('/api/students', require('./routes/apis/students'));
+app.use('/logout', require('./routes/logout'))
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT);
