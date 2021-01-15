@@ -52,7 +52,7 @@ router.post('/login', async (req, res) => {
             if(user.length !== 0){
                 jwt.sign({username: user.name }, secretAccessToken,(err, token) => {
                     res.cookie('token', "Bearer "+token, { httpOnly: true });
-                    res.json({token});
+                    res.redirect('/api/students');
                 });
             }
             else{
@@ -70,7 +70,6 @@ router.get('/', authenticateJWT, async (req, res) => {
             try{
                 let allStudents = await database.collection("students_data").find({}).toArray();
                 res.render('students', {allStudents});
-                
             }
             catch (err){
                 console.error(err);
