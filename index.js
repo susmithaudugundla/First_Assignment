@@ -20,10 +20,18 @@ app.get('/', (req, res) => {
 });
 app.get('/signup', (req, res) => {
     res.render('signup');
+});
+app.get('/forgotpassword', (req, res) => {
+    res.render('forgotpassword');
+})
+app.get('/resetpass', (req, res) => {
+    res.render('resetpass');
 })
 
 app.use('/api/students', require('./routes/apis/students'));
-app.use('/logout', require('./routes/logout'))
+app.use('/logout', require('./routes/logout'));
+app.use('/forgotpass', require('./routes/forgotpass'));
+app.use('/reset', require('./routes/reset'));
 
 const PORT = process.env.PORT || 5000;
 

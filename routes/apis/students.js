@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const MongoClient = require('mongodb').MongoClient;
-const schema = require('mongodb-schema');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
 const { validateId, validateEmail, isEmailInUse, validatePassword, isIDInUse } = require('../../validator')
-const uri = process.env.MONGODB_URI || "mongodb+srv://FirstAssignment:Susmi@123@assignment-1.ksf6u.mongodb.net/Students?retryWrites=true&w=majority";
 const secretAccessToken = "secret";
+const MongoClient = require('mongodb').MongoClient;
+const uri = process.env.MONGODB_URI || "mongodb+srv://FirstAssignment:Susmi@123@assignment-1.ksf6u.mongodb.net/Students?retryWrites=true&w=majority";
 let database;
 
 
@@ -25,15 +24,7 @@ const authenticateJWT = (req, res, next) =>{
     if(authHeader){
         const token = authHeader.split(' ')[1];
         req.token = token;
-        jwt.verify(token, secretAccessToken, async (err, authData) => {
-            if(err){
-                res.sendStatus(403);
-            }
-            else{
-                req.authData = authData;
-                next();
-            }
-        });
+        next();
     }
     else {
         res.sendStatus(401);
@@ -50,7 +41,7 @@ router.post('/login', async (req, res) => {
         try{
             const user = await database.collection("students_data").find({$and:[{id:id}, {password:password}]}).toArray();
             if(user.length !== 0){
-                jwt.sign({username: user.name }, secretAccessToken,(err, token) => {
+                jwt.sign({user: user }, secretAccessToken,{ expiresIn: 60 * 60 },(err, token) => {
                     res.cookie('token', "Bearer "+token, { httpOnly: true });
                     res.redirect('/api/students');
                 });
@@ -67,6 +58,16 @@ router.post('/login', async (req, res) => {
 
 // Get all students
 router.get('/', authenticateJWT, async (req, res) => {
+            jwt.verify(req.token, secretAccessToken, async (err, authData) => {
+                //console.log(authData);
+                if(err){
+                    res.sendStatus(403);
+                }
+                else{
+                    req.authData = authData;
+                    res.cookie('authData', authData, { httpOnly: true }, "/");
+                }
+            });
             try{
                 let allStudents = await database.collection("students_data").find({}).toArray();
                 res.render('students', {allStudents});
