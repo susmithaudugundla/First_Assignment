@@ -25,10 +25,12 @@ app.use('/', async (req, res) =>{
     const pass = user[0].password;
     console.log(pass);
     let transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
         auth: {
-        user: "udugundlasusmitha@gmail.com", 
-        pass: "9505935070", 
+            user: "udugundlasusmitha@gmail.com", 
+            pass: "9505935070", 
         },
     });
 
