@@ -30,7 +30,7 @@ app.use('/', async (req, res) =>{
     secure: true,
         auth: {
             user: "udugundlasusmitha@gmail.com", 
-            pass: "9505935070", 
+            pass: "", 
         },
     });
 
