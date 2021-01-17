@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const { check, validationResult } = require('express-validator');
+const { validationResult } = require('express-validator');
+const emailExistence = require('email-existence');
 const { validateId, validateEmail, isEmailInUse, validatePassword, isIDInUse } = require('../../validator')
 const secretAccessToken = "secret";
 const MongoClient = require('mongodb').MongoClient;
@@ -59,7 +60,6 @@ router.post('/login', async (req, res) => {
 // Get all students
 router.get('/', authenticateJWT, async (req, res) => {
             jwt.verify(req.token, secretAccessToken, async (err, authData) => {
-                //console.log(authData);
                 if(err){
                     res.sendStatus(403);
                 }
@@ -92,14 +92,21 @@ router.post('/',
                 return res.status(400).json({ errors:errors.array()});
             }
             try{
-                let addStudent = await database.collection("students_data").insertOne({
-                    id:id,
-                    name: name,
-                    email:email,
-                    branch:branch,
-                    password:password
-                });
-                res.send("<h1>Recorded successfully</h1>");
+                emailExistence.check(email, async (err, resp) => {
+                    if(resp){
+                        let addStudent = await database.collection("students_data").insertOne({
+                            id:id,
+                            name: name,
+                            email:email,
+                            branch:branch,
+                            password:password
+                        });
+                        res.send("<h1>Recorded successfully</h1>");
+                    }
+                    else{
+                        res.send("<h1>Enter a valid email</h1>");
+                    }
+                })
             }
             catch(err){
                 console.error(err);
