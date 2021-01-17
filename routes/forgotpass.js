@@ -44,7 +44,7 @@ app.use('/', async (req, res) =>{
 
   transporter.sendMail( mailDetails, (err, response) => {
       if(err){
-          return res.send("<h1>Invalid Email</h1>");
+          return res.json({err});
       }
       else{
             res.send("<h1>Password sent to your registered mail</h1>")
